@@ -2,23 +2,33 @@
 
 # 2015-06-01
 
+library(ggplot2)
+library(ggthemes)
+
+c.names <- c('date', 'time', 'epoch', 'wait')
 rows <- 120
-diska <- tail(read.table('gc2718.time.txt'), rows)
-diskb <- tail(read.table('gc2719.time.txt'), rows)
-diskc <- tail(read.table('gc2802.time.txt'), rows)
+data.dir <- '/gscmnt/gc2719/halllab/users/cchiang/src/disktime/data'
 
-col.list <- c('steelblue', 'indianred', 'gray50')
+# read data
+disk.data <- NULL
+for (disk.name in c('gc2718', 'gc2719', 'gc2802')) {
+    d <- tail(read.table(paste0(data.dir, '/', disk.name, '.time.txt'), col.names=c.names), rows)
+    d$disk <- disk.name
+    
+    disk.data <- rbind(disk.data, d)
+}
 
-ymax <- max(c(diska[,4], diskb[,4], diskc[,4]))
+disk.data$posix <- as.POSIXct(disk.data$epoch, origin="1970-01-01")
 
-pdf('disktime.pdf', height=8, width=8)
-plot(diska[,3], diska[,4], type='n', axes=F, ylab='read-write duration (s)', xlab='time', ylim=c(0,ymax))
-points(diska[,3], diska[,4], type='l', col=col.list[1])
-points(diskb[,3], diskb[,4], type='l', col=col.list[2])
-points(diskc[,3], diskc[,4], type='l', col=col.list[3])
-axis(2)
-axis(1, at=diska[seq(1,nrow(diska),nrow(diska)/10),3], labels=paste0(diska[seq(1,nrow(diska),nrow(diska)/10),1], '\n', diska[seq(1,nrow(diska),nrow(diska)/10),2]))
+p <- ggplot(data=disk.data, aes(x=posix, y=wait, col=disk))
+p <- p + theme_bw() + scale_color_gdocs()
+p <- p + theme(panel.border = element_blank(), axis.text = element_text(color='black'), axis.line.x = element_line(), axis.line.y = element_line(), panel.grid=element_blank())
+# p <- p + geom_point()
+p <- p + geom_line()
+p <- p + scale_y_log10(breaks=10**(-1:10))
+p <- p + annotation_logticks(side='l', scaled=TRUE)
+p <- p + xlab('Date') + ylab('Wait (s)')
+p <- p + scale_x_datetime(date_breaks='4 hours', date_labels="%D\n%H:%M")
+## p
 
-legend('topright', c('GC2718', 'GC2719', 'GC2802'), fill=col.list)
-
-garbage <- dev.off()
+ggsave('/gscmnt/gc2719/halllab/users/cchiang/src/disktime/plots/disktime.pdf', p, h=4.5, w=7)
