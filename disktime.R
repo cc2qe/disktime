@@ -8,7 +8,8 @@ library(scales)
 
 c.names <- c('date', 'time', 'epoch', 'wait')
 rows <- 120
-data.dir <- '/gscmnt/gc2719/halllab/users/cchiang/src/disktime/data'
+work.dir <- '.'
+data.dir <- paste0(work.dir, '/data')
 
 # read data
 disk.data <- NULL
@@ -34,4 +35,4 @@ p <- p + xlab('Date') + ylab('Wait (s)')
 p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
 ## p
 
-ggsave(paste0(data.dir, '/../plots/', 'disktime.pdf'), p, h=4.5, w=7)
+ggsave(paste0(work.dir, '/plots/', 'disktime.pdf'), p, h=4.5, w=7)
