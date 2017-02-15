@@ -36,3 +36,15 @@ p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%
 ## p
 
 ggsave(paste0(work.dir, '/plots/', 'disktime.pdf'), p, h=4.5, w=7)
+
+
+## p <- ggplot(data=disk.data, aes(x=posix, y=wait, col=disk, fill=disk))
+## p <- p + theme_bw() + scale_color_gdocs() + scale_fill_gdocs()
+## p <- p + theme(panel.border = element_blank(), axis.text = element_text(color='black'), axis.line.x = element_line(), axis.line.y = element_line(), panel.grid=element_blank())
+## # p <- p + geom_point()
+## p <- p + geom_smooth(span=0.2, se=T, alpha=0.15)
+## p <- p + scale_y_log10(breaks=10**(-1:10))
+## p <- p + annotation_logticks(side='l', scaled=TRUE)
+## p <- p + xlab('Date') + ylab('Wait (s)')
+## p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
+## p
