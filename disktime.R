@@ -4,6 +4,7 @@
 
 library(ggplot2)
 library(ggthemes)
+library(scales)
 
 c.names <- c('date', 'time', 'epoch', 'wait')
 rows <- 120
@@ -18,7 +19,9 @@ for (disk.name in c('gc2718', 'gc2719', 'gc2802')) {
     disk.data <- rbind(disk.data, d)
 }
 
+## disk.data$posix <- as.POSIXct(disk.data$epoch, origin="1970-01-01", tz="America/Chicago")
 disk.data$posix <- as.POSIXct(disk.data$epoch, origin="1970-01-01")
+## tail(disk.data$posix[1])
 
 p <- ggplot(data=disk.data, aes(x=posix, y=wait, col=disk))
 p <- p + theme_bw() + scale_color_gdocs()
@@ -28,7 +31,7 @@ p <- p + geom_line()
 p <- p + scale_y_log10(breaks=10**(-1:10))
 p <- p + annotation_logticks(side='l', scaled=TRUE)
 p <- p + xlab('Date') + ylab('Wait (s)')
-p <- p + scale_x_datetime(date_breaks='4 hours', date_labels="%D\n%H:%M")
+p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
 ## p
 
-ggsave('/gscmnt/gc2719/halllab/users/cchiang/src/disktime/plots/disktime.pdf', p, h=4.5, w=7)
+ggsave(paste0(data.dir, '/../plots/', 'disktime.pdf'), p, h=4.5, w=7)
