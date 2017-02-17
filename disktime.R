@@ -9,14 +9,14 @@ library(ggthemes)
 library(scales)
 
 c.names <- c('date', 'time', 'epoch', 'wait')
-rows <- 336
+## rows <- 336
 work.dir <- '.'
 data.dir <- paste0(work.dir, '/data')
 
 # read data
 disk.data <- NULL
 for (disk.name in c('gc2718', 'gc2719', 'gc2802')) {
-    d <- tail(read.table(paste0(data.dir, '/', disk.name, '.time.txt'), col.names=c.names), rows)
+    d <- read.table(paste0(data.dir, '/', disk.name, '.time.txt'), col.names=c.names)
     d$disk <- disk.name
     
     disk.data <- rbind(disk.data, d)
@@ -37,7 +37,7 @@ p <- p + geom_line()
 p <- p + scale_y_log10(breaks=10**(-1:10))
 p <- p + annotation_logticks(side='l', scaled=TRUE)
 p <- p + xlab('Date') + ylab('Wait (s)')
-p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
+p <- p + scale_x_datetime(date_breaks='12 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
 print(p)
 
 ## ggsave(paste0(work.dir, '/plots/', 'disktime.pdf'), p, h=4.5, w=7)
@@ -51,7 +51,7 @@ p <- p + geom_smooth(method="loess", se=T, span=0.2, formula=y~x, alpha=0.1)
 ## p <- p + scale_y_log10(breaks=10**(-1:10))
 ## p <- p + annotation_logticks(side='l', scaled=TRUE)
 p <- p + xlab('Date') + ylab('Wait (s)')
-p <- p + scale_x_datetime(date_breaks='6 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
+p <- p + scale_x_datetime(date_breaks='12 hours', labels=date_format("%H:%M\n%m/%d", tz = "America/Chicago"))
 print(p)
 
 garbage <- dev.off()
