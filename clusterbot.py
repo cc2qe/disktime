@@ -1,18 +1,46 @@
 #!/usr/bin/env python
 
 import os
-import time
+import time, timeit
 from slackclient import SlackClient
 
+# Based on https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
+# Colby Chiang, 2017-02-17
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
+SLASH_BOT = "</status>"
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+
+# time test script
+test_script = '/gscmnt/gc2719/halllab/users/cchiang/src/disktime/testscript.sh'
+
+# logs
+data_dir = '/gscmnt/gc2719/halllab/users/cchiang/src/disktime/data'
+logs = [data_dir + '/' + 'gc2718.time.txt',
+        data_dir + '/' + 'gc2719.time.txt',
+        data_dir + '/' + 'gc2802.time.txt']
+        
+
+# command
+
+
+def get_status():
+    latest_status = []
+    for logfile in logs:
+        l = ''
+        with open(logfile, 'r') as f:
+            l = f.readline().rstrip()
+        latest_status.append([logfile] + l.split('\t'))
+
+    print latest_status
+
+    return
 
 def announce_status():
     response = 'test post'
@@ -45,6 +73,7 @@ def parse_slack_output(slack_rtm_output):
     output_list = slack_rtm_output
     if output_list and len(output_list) > 0:
         for output in output_list:
+            print output
             if output and 'text' in output and AT_BOT in output['text']:
                 # return text after the @ mention, whitespace removed
                 return output['text'].split(AT_BOT)[1].strip().lower(), \
@@ -53,7 +82,8 @@ def parse_slack_output(slack_rtm_output):
 
 
 if __name__ == "__main__":
-    announce_status()
+    get_status()
+    # announce_status()
     # READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     # if slack_client.rtm_connect():
     #     print("StarterBot connected and running!")
