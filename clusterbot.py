@@ -35,15 +35,20 @@ def get_status():
     for logfile in logs:
         l = ''
         with open(logfile, 'r') as f:
-            l = f.readline().rstrip()
-        latest_status.append([logfile] + l.split('\t'))
+            for line in f:
+                l = line.rstrip()
+        print l
+        latest_status.append([os.path.basename(logfile)] + l.split('\t'))
 
-    print latest_status
+    return latest_status
 
-    return
+def announce_status(disk_status):
+    response = 'Warning: cluster response time > %s s :sonic_waiting:' % warn_time
+    response = response + '\n```\n'
+    for disk in disk_status:
+        response = response + '\t'.join(disk) + '\n'
+    response = response + '```'
 
-def announce_status():
-    response = 'test post'
     channel='clusterbot-test'
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
@@ -82,7 +87,15 @@ def parse_slack_output(slack_rtm_output):
 
 
 if __name__ == "__main__":
-    get_status()
+    global warn_time
+    warn_time = 10
+    disk_status = get_status()
+    announce = False
+    for disk in disk_status:
+        if float(disk[-1]) > warn_time:
+            announce_status(disk_status)
+            break
+
     # announce_status()
     # READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     # if slack_client.rtm_connect():
